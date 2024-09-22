@@ -7,7 +7,7 @@ struct SporkTramData
 {
     int (*func)(void *);
     void *arg;
-};
+} sporkTData;
 
 struct PCB
 {
@@ -33,7 +33,7 @@ char *initStackPtr;
 int nextPid = 1;
 
 /* --- Function prototypes --- */
-int getNextPid(void);
+void getNextPid(void);
 unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
 void init(void);
@@ -53,7 +53,8 @@ void phase1_init(void)
 
     memset(procTable, 0, sizeof(procTable));
     struct PCB initProc;
-    initProc.pid = getNextPid();
+    getNextPid();
+    initProc.pid = nextPid;
     initProc.priority = 6;
     initProc.funcPtr = &init;
 
@@ -73,7 +74,8 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
 
-    int pid = getNextPid();
+    getNextPid();
+    int pid = nextPid;
     int slot = pid % MAXPROC;
     if (procTable[slot].pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
         return -1;
@@ -87,9 +89,8 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     newProc->funcPtr = func(&arg);
     newProc->stack = malloc(stacksize);
 
-    struct SporkTramData tdata;
-    tdata.func = func;
-    tdata.arg = arg;
+    sporkTData.func = func;
+    sporkTData.arg = arg;
 
     USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, sporkTrampoline());
 
@@ -102,10 +103,9 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     return pid;
 }
 
-void sporkTrampoline(void *data)
+void sporkTrampoline()
 {
-    struct SporkTramData *tdata = (struct SporkTramData *)data;
-    tdata->func(tdata->arg);
+    sporkTData.func(sporkTData.arg);
 }
 
 void init(void)
@@ -118,8 +118,7 @@ void init(void)
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
-
-int getNextPid(void)
+void getNextPid(void)
 {
     // check if nextPid already in use
     while (procTable[nextPid % MAXPROC].pid != 0)
@@ -135,8 +134,7 @@ int getNextPid(void)
 unsigned int disableInterrupts(void)
 {
     unsigned int oldPsr = USLOSS_PsrGet();
-    USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
-    return oldPsr;
+    return USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
 }
 
 /*
