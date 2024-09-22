@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "phase1.h"
+#include <string.h>
 
 struct PCB
 {
@@ -9,13 +10,14 @@ struct PCB
     int stackSize;
     USLOSS_Context context;
     void (*funcPtr)(void);
-    void stack[];
+    void stack[];   
 }
 
 /* --- Global variables --- */
 PCB *currProc;
 PCB procTable[MAXPROC];
-void initStack[USLOSS_MIN_STACK] void *initStackPtr;
+void initStack[USLOSS_MIN_STACK];
+void *initStackPtr;
 int nextPid = 1;
 
 /* --- Function prototypes --- */
@@ -52,13 +54,13 @@ void phase1_init(void)
 
 /*
  * Create child proc of current proc
- *
+ * func takes a void arg and returns an int
  */
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
     int pid = getNextPid();
     int slot = pid % MAXPROC;
-    if (procTable[slot].pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
+    if (procTable[slot]->pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
         return -1;
     if (stacksize < USLOSS_MIN_STACK)
         return -2;
@@ -67,6 +69,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
     newProc->pid = pid;
     newProc->priority = priority;
+    newProc->funcPtr = &func(&arg);
 
     return pid;
 }
@@ -84,7 +87,7 @@ void init(void)
 int getNextPid(void)
 {
     // check if nextPid already in use
-    while (procTable[nextPid % MAXPROC].pid != 0)
+    while (procTable[nextPid % MAXPROC]->pid != 0)
     {
         nextPid++;
     }
