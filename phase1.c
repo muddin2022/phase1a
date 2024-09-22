@@ -21,10 +21,11 @@ char *initStackPtr;
 int nextPid = 1; 
 
 /* --- Function prototypes --- */
-int getNextPid(void);
+void getNextPid(void);
 unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
 void init(void);
+int testcaseMainWrapper(void *args);
 
 /* --- Functions from spec --- */
 void phase1_init(void) {
@@ -32,9 +33,10 @@ void phase1_init(void) {
 
     memset(procTable, 0, sizeof(procTable));
 
-    PCB initProc;
-    initProc.pid = getNextPid();
-    initProc.name = "init";
+    struct PCB initProc;
+    getNextPid();
+    initProc.pid = nextPid;
+    strcpy(*initProc.name, "init");
     initProc.priority = 6;
     initProc.stackSize = USLOSS_MIN_STACK;
     initProc.funcPtr = &init;
@@ -62,24 +64,25 @@ void init(void) {
     restoreInterrupts(oldPsr);
 
     // create testcase_main proc
-    spork("testcaseMain", &testcase_main, NULL, USLOSS_MIN_STACK, 3);
+    spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
 
     // call join to clean up procTable
-    int joinRetVal = 1;
-    int status;
-    while (joinRetVal > 0) {
-        join(&status);
+    int deadPid = 1;
+    int status, index;
+    while (deadPid > 0) {
+        deadPid = join(&status);
+        index = deadPid % MAXPROC;
+        memset(&procTable[index], 0, sizeof(struct PCB));
     }
 
-    if (joinRetVal == -2) {
+    if (deadPid == -2) {
         USLOSS_Console("ERROR: init has no more children, terminating simulation\n");
         return; 
 
-    } else if (joinRetVal == -3) {
+    } else if (deadPid == -3) {
         USLOSS_Console("ERROR: status pointer is null");
     }
 }
-
 
 /* --- Helper functions, not defined in spec --- */ 
 /*
@@ -87,9 +90,9 @@ void init(void) {
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
-int getNextPid(void) {
+void getNextPid(void) {
     // check if nextPid already in use
-    while (procTable[nextPid % MAXPROC]->pid != 0) {
+    while (procTable[nextPid % MAXPROC].pid != 0) {
         nextPid++;
     }
 }
@@ -100,8 +103,7 @@ int getNextPid(void) {
  */
 unsigned int disableInterrupts(void) {
     unsigned int oldPsr = USLOSS_PsrGet();
-    USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
-    return oldPsr;
+    return USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
 }
 
 /*
@@ -109,5 +111,13 @@ unsigned int disableInterrupts(void) {
  */
 void restoreInterrupts(unsigned int oldPsr) {
     USLOSS_PsrSet(oldPsr);
+}
+
+/*
+ * Creates a wrapper around testcase_main so that spork can be called. Gets
+ * called by init().
+ */
+int testcaseMainWrapper(void *args) {
+    return testcase_main();
 }
 
