@@ -10,7 +10,7 @@ struct PCB {
     USLOSS_Context context;
     void (*funcPtr) (void);
     char *stack;
-}pcb;
+}
 
 /* --- Global variables --- */
 struct PCB *currProc;
