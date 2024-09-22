@@ -7,21 +7,22 @@ struct PCB {
     int priority;
     int stackSize;
     USLOSS_Context context;
-    void stack[USLOSS_MIN_STACK]; // not sure if this is right...
     void (*funcPtr) (void);
+    void stack[];
 }
 
 /* --- Global variables --- */
-PCB *currProc; // Current process pointer
-PCB procTable[MAXPROC];// Process table
-// Init stack
-// Init stack pointer ?
-int nextPid = 1; // next pid to try
+PCB *currProc;                      
+PCB procTable[MAXPROC];             
+void initStack[USLOSS_MIN_STACK]    
+void *initStackPtr; 
+int nextPid = 1; 
 
 /* --- Function prototypes --- */
 int getNextPid(void);
 unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
+void init(void);
 
 /* --- Functions from spec --- */
 void phase1_init(void) {
@@ -39,6 +40,7 @@ void phase1_init(void) {
     PCB initProc;
     initProc.pid = getNextPid();
     initProc.priority = 6;
+    initProc.funcPtr = &init;
 
     USLOSS_ContextInit();
 
@@ -47,8 +49,8 @@ void phase1_init(void) {
     USLOSS_ContextSwitch();   
 }
 
-void init() {
-    
+void init(void) {
+
 }
 
 /* --- Helper functions, not defined in spec --- */ 
