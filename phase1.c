@@ -10,16 +10,16 @@ struct PCB
     int priority;
     int stackSize;
     USLOSS_Context context;
-    void (*funcPtr)(void);
+    void (*funcPtr) (void);
     char *stack;
-}
+}pcb;
 
 /* --- Global variables --- */
-PCB *currProc;
-PCB procTable[MAXPROC];
-void initStack[USLOSS_MIN_STACK];
-void *initStackPtr;
-int nextPid = 1;
+struct PCB *currProc;
+struct PCB procTable[MAXPROC];             
+char initStack[USLOSS_MIN_STACK];
+char *initStackPtr; 
+int nextPid = 1; 
 
 /* --- Function prototypes --- */
 int getNextPid(void);
@@ -37,20 +37,20 @@ void phase1_init(void)
     phase3_start_service_processes();
     phase4_start_service_processes();
     phase5_start_service_processes();
-    phase5_mmu_pageTable_alloc(int pid);
-    phase5_mmu_pageTable_free(int pid, USLOSS_PTE *);
+    phase5_mmu_pageTable_alloc(currProc->pid);
+    phase5_mmu_pageTable_free (currProc->pid, NULL);
 
     memset(procTable, 0, sizeof(procTable));
-    PCB initProc;
+    struct PCB initProc;
     initProc.pid = getNextPid();
     initProc.priority = 6;
     initProc.funcPtr = &init;
 
-    USLOSS_ContextInit();
+    //USLOSS_ContextInit();
 
-    restoreInterrupts(oldPsr);
-
-    USLOSS_ContextSwitch();
+    restoreInterrupts(oldPsr); 
+    
+    //USLOSS_ContextSwitch();   
 }
 
 /*
