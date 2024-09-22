@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "phase1.h" 
+#include "phase1.h"
+#include <string.h>
 
 struct PCB {
     int pid;
@@ -8,14 +9,14 @@ struct PCB {
     int stackSize;
     USLOSS_Context context;
     void (*funcPtr) (void);
-    void stack[];
-}
+    char *stack;
+}pcb;
 
 /* --- Global variables --- */
-PCB *currProc;                      
-PCB procTable[MAXPROC];             
-void initStack[USLOSS_MIN_STACK]    
-void *initStackPtr; 
+struct PCB *currProc;
+struct PCB procTable[MAXPROC];             
+char initStack[USLOSS_MIN_STACK];
+char *initStackPtr; 
 int nextPid = 1; 
 
 /* --- Function prototypes --- */
@@ -33,20 +34,20 @@ void phase1_init(void) {
     phase3_start_service_processes();
     phase4_start_service_processes();
     phase5_start_service_processes();
-    phase5_mmu_pageTable_alloc(int pid);
-    phase5_mmu_pageTable_free (int pid, USLOSS_PTE*);
+    phase5_mmu_pageTable_alloc(currProc->pid);
+    phase5_mmu_pageTable_free (currProc->pid, NULL);
 
     memset(procTable, 0, sizeof(procTable));
-    PCB initProc;
+    struct PCB initProc;
     initProc.pid = getNextPid();
     initProc.priority = 6;
     initProc.funcPtr = &init;
 
-    USLOSS_ContextInit();
+    //USLOSS_ContextInit();
 
     restoreInterrupts(oldPsr); 
     
-    USLOSS_ContextSwitch();   
+    //USLOSS_ContextSwitch();   
 }
 
 void init(void) {
