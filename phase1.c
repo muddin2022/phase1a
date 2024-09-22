@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "phase1.h" 
+#include "phase1.h"
+#include <string.h>
 
 struct PCB {
     int pid;
@@ -9,13 +10,14 @@ struct PCB {
     int stackSize;
     USLOSS_Context context;
     void (*funcPtr) (void);
-}
+    char *stack;
+}pcb;
 
 /* --- Global variables --- */
-PCB *currProc;                      
-PCB procTable[MAXPROC];             
-void initStack[USLOSS_MIN_STACK];    
-void *initStackPtr = &initStack; 
+struct PCB *currProc;
+struct PCB procTable[MAXPROC];             
+char initStack[USLOSS_MIN_STACK];
+char *initStackPtr; 
 int nextPid = 1; 
 
 /* --- Function prototypes --- */
