@@ -77,6 +77,7 @@ void init(void) {
 
     if (deadPid == -2) {
         USLOSS_Console("ERROR: init has no more children, terminating simulation\n");
+        USLOSS_Halt(1);
         return; 
 
     } else if (deadPid == -3) {
