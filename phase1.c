@@ -1,6 +1,13 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include "phase1.h"
 #include <string.h>
+
+struct SporkTramData
+{
+    int (*func)(void *);
+    void *arg;
+};
 
 struct PCB
 {
@@ -10,16 +17,20 @@ struct PCB
     int priority;
     int stackSize;
     USLOSS_Context context;
-    void (*funcPtr) (void);
+    void (*funcPtr)(void);
     char *stack;
-}
+
+    struct PCB *parent;
+    struct PCB *prevSibling;
+    struct PCB *nextSibling;
+};
 
 /* --- Global variables --- */
 struct PCB *currProc;
-struct PCB procTable[MAXPROC];             
+struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
-char *initStackPtr; 
-int nextPid = 1; 
+char *initStackPtr;
+int nextPid = 1;
 
 /* --- Function prototypes --- */
 int getNextPid(void);
@@ -38,7 +49,7 @@ void phase1_init(void)
     phase4_start_service_processes();
     phase5_start_service_processes();
     phase5_mmu_pageTable_alloc(currProc->pid);
-    phase5_mmu_pageTable_free (currProc->pid, NULL);
+    phase5_mmu_pageTable_free(currProc->pid, NULL);
 
     memset(procTable, 0, sizeof(procTable));
     struct PCB initProc;
@@ -46,11 +57,11 @@ void phase1_init(void)
     initProc.priority = 6;
     initProc.funcPtr = &init;
 
-    //USLOSS_ContextInit();
+    // USLOSS_ContextInit();
 
-    restoreInterrupts(oldPsr); 
-    
-    //USLOSS_ContextSwitch();   
+    restoreInterrupts(oldPsr);
+
+    // USLOSS_ContextSwitch();
 }
 
 /*
@@ -59,35 +70,42 @@ void phase1_init(void)
  */
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
-    //disable interrupts for new process creation
+    // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
 
     int pid = getNextPid();
     int slot = pid % MAXPROC;
-    if (procTable[slot]->pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
+    if (procTable[slot].pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
         return -1;
     if (stacksize < USLOSS_MIN_STACK)
         return -2;
 
-    PCB *newProc = &procTable[slot];
+    struct PCB *newProc = &procTable[slot];
 
     newProc->pid = pid;
     newProc->priority = priority;
-    newProc->funcPtr = &func(&arg);
+    newProc->funcPtr = func(&arg);
     newProc->stack = malloc(stacksize);
-    USLOSS_ContextInit(newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline(func, arg));
 
-    //dont need to call dispatcher in phase1a?
+    struct SporkTramData tdata;
+    tdata.func = func;
+    tdata.arg = arg;
 
-    //reenable interrupts then call startFunc(func parameter)
+    USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, sporkTrampoline());
+
+    // dont need to call dispatcher in phase1a?
+
+    // reenable interrupts then call startFunc(func parameter)
     restoreInterrupts(oldPsr);
     func(&arg);
 
     return pid;
 }
 
-void* sporkTrampoline(int (*func)(void *), void *arg) {
-    return func(&arg);
+void sporkTrampoline(void *data)
+{
+    struct SporkTramData *tdata = (struct SporkTramData *)data;
+    tdata->func(tdata->arg);
 }
 
 void init(void)
@@ -101,11 +119,10 @@ void init(void)
  * updates the global variable.
  */
 
-
 int getNextPid(void)
 {
     // check if nextPid already in use
-    while (procTable[nextPid % MAXPROC]->pid != 0)
+    while (procTable[nextPid % MAXPROC].pid != 0)
     {
         nextPid++;
     }
