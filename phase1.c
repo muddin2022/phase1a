@@ -5,12 +5,13 @@
 struct PCB
 {
     int pid;
+    char name[MAXNAME];
     int status;
     int priority;
     int stackSize;
     USLOSS_Context context;
     void (*funcPtr)(void);
-    void stack[];   
+    char *stack;
 }
 
 /* --- Global variables --- */
@@ -58,6 +59,9 @@ void phase1_init(void)
  */
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
+    //disable interrupts for new process creation
+    unsigned int oldPsr = disableInterrupts();
+
     int pid = getNextPid();
     int slot = pid % MAXPROC;
     if (procTable[slot]->pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
@@ -70,8 +74,20 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     newProc->pid = pid;
     newProc->priority = priority;
     newProc->funcPtr = &func(&arg);
+    newProc->stack = malloc(stacksize);
+    USLOSS_ContextInit(newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline(func, arg));
+
+    //dont need to call dispatcher in phase1a?
+
+    //reenable interrupts then call startFunc(func parameter)
+    restoreInterrupts(oldPsr);
+    func(&arg);
 
     return pid;
+}
+
+void* sporkTrampoline(int (*func)(void *), void *arg) {
+    return func(&arg);
 }
 
 void init(void)
@@ -84,6 +100,8 @@ void init(void)
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
+
+
 int getNextPid(void)
 {
     // check if nextPid already in use
