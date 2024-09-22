@@ -14,8 +14,8 @@ struct PCB {
 /* --- Global variables --- */
 PCB *currProc;                      
 PCB procTable[MAXPROC];             
-void initStack[USLOSS_MIN_STACK]    
-void *initStackPtr; 
+void initStack[USLOSS_MIN_STACK];    
+void *initStackPtr = &initStack; 
 int nextPid = 1; 
 
 /* --- Function prototypes --- */
@@ -28,19 +28,14 @@ void init(void);
 void phase1_init(void) {
     unsigned int oldPsr = disableInterrupts();
 
-    // Initialize data structures
-    phase2_start_service_processes();
-    phase3_start_service_processes();
-    phase4_start_service_processes();
-    phase5_start_service_processes();
-    phase5_mmu_pageTable_alloc(int pid);
-    phase5_mmu_pageTable_free (int pid, USLOSS_PTE*);
-
     memset(procTable, 0, sizeof(procTable));
+
     PCB initProc;
     initProc.pid = getNextPid();
     initProc.priority = 6;
+    initProc.stackSize = USLOSS_MIN_STACK;
     initProc.funcPtr = &init;
+    initProc.stack = initStack;
 
     USLOSS_ContextInit();
 
@@ -50,7 +45,17 @@ void phase1_init(void) {
 }
 
 void init(void) {
+    // start services
+    phase2_start_service_processes();
+    phase3_start_service_processes();
+    phase4_start_service_processes();
+    phase5_start_service_processes();
+    phase5_mmu_pageTable_alloc(int pid);
+    phase5_mmu_pageTable_free (int pid, USLOSS_PTE*);
 
+    // create testcase_main proc
+
+    // call join to clean up procTable
 }
 
 /* --- Helper functions, not defined in spec --- */ 
