@@ -12,7 +12,7 @@ struct SporkTramData
 struct PCB
 {
     int pid;
-    char name[MAXNAME];
+    char *name[MAXNAME];
     int status;
     int priority;
     int stackSize;
@@ -37,13 +37,36 @@ void getNextPid(void);
 unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
 void init(void);
+int testcaseMainWrapper(void *args);
 
 /* --- Functions from spec --- */
 void phase1_init(void)
 {
     unsigned int oldPsr = disableInterrupts();
 
-    // Initialize data structures
+    memset(procTable, 0, sizeof(procTable));
+
+    struct PCB initProc;
+    getNextPid();
+    initProc.pid = nextPid;
+    strcpy(*initProc.name, "init");
+    initProc.priority = 6;
+    initProc.stackSize = USLOSS_MIN_STACK;
+    initProc.funcPtr = &init;
+
+    int index = initProc.pid % MAXPROC;
+    procTable[index] = initProc;
+
+    USLOSS_ContextInit(&procTable[index].context, initStackPtr, USLOSS_MIN_STACK, NULL, initProc.funcPtr);
+
+    currProc = &initProc;
+    restoreInterrupts(oldPsr);   
+}
+
+void init(void) {
+    unsigned int oldPsr = disableInterrupts();
+
+    // start services
     phase2_start_service_processes();
     phase3_start_service_processes();
     phase4_start_service_processes();
@@ -51,20 +74,31 @@ void phase1_init(void)
     phase5_mmu_pageTable_alloc(currProc->pid);
     phase5_mmu_pageTable_free(currProc->pid, NULL);
 
-    memset(procTable, 0, sizeof(procTable));
-    struct PCB initProc;
-    getNextPid();
-    initProc.pid = nextPid;
-    initProc.priority = 6;
-    initProc.funcPtr = &init;
-
-    // USLOSS_ContextInit();
-
     restoreInterrupts(oldPsr);
 
-    // USLOSS_ContextSwitch();
+    // create testcase_main proc
+    spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
+
+    // call join to clean up procTable
+    int deadPid = 1;
+    int status, index;
+    while (deadPid > 0) {
+        deadPid = join(&status);
+        index = deadPid % MAXPROC;
+        memset(&procTable[index], 0, sizeof(struct PCB));
+    }
+
+    if (deadPid == -2) {
+        USLOSS_Console("ERROR: init has no more children, terminating simulation\n");
+        USLOSS_Halt(1);
+        return; 
+
+    } else if (deadPid == -3) {
+        USLOSS_Console("ERROR: status pointer is null");
+    }
 }
 
+/* --- Helper functions, not defined in spec --- */ 
 /*
  * Create child proc of current proc
  * func takes a void arg and returns an int
@@ -118,8 +152,7 @@ void init(void)
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
-void getNextPid(void)
-{
+void getNextPid(void) {
     // check if nextPid already in use
     while (procTable[nextPid % MAXPROC].pid != 0)
     {
@@ -144,3 +177,12 @@ void restoreInterrupts(unsigned int oldPsr)
 {
     USLOSS_PsrSet(oldPsr);
 }
+
+/*
+ * Creates a wrapper around testcase_main so that spork can be called. Gets
+ * called by init().
+ */
+int testcaseMainWrapper(void *args) {
+    return testcase_main();
+}
+
