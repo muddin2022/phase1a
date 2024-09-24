@@ -19,7 +19,7 @@ struct PCB
     int retVal;
 
     struct PCB *parent;
-    struct PCB *oldestChild;
+    struct PCB *newestChild;
     struct PCB *prevSibling;
     struct PCB *nextSibling;
 };
@@ -105,15 +105,22 @@ int init(void *)
     return 0;
 }
 
+void addChild(struct PCB *parent, struct PCB *child)
+{
+    if (parent->newestChild != NULL)
+    {
+        child->nextSibling = parent->newestChild;
+        child->nextSibling->prevSibling = child;
+    }
+    child->parent = parent;
+    parent->newestChild = child;
+}
+
 void sporkTrampoline()
 {
     currProc->retVal = currProc->funcPtr(currProc->arg);
 }
 
-/*
- * Create child proc of current proc
- * func takes a void arg and returns an int
- */
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
     // disable interrupts for new process creation
@@ -129,8 +136,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
     struct PCB *newProc = &procTable[slot];
 
-    // todo: set name of new process
-    strcpy(newProc->name, *name);
+    strcpy(newProc->name, name);
     newProc->pid = pid;
     newProc->priority = priority;
     newProc->stack = malloc(stacksize);
@@ -138,7 +144,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     newProc->funcPtr = func;
     newProc->arg = arg;
 
-    //use currProc to make child list
+    addChild(currProc, newProc);
 
     USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline);
 
