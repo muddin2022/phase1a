@@ -105,6 +105,7 @@ int init(void *)
     return 0;
 }
 
+// add child process to parent
 void addChild(struct PCB *parent, struct PCB *child)
 {
     if (parent->newestChild != NULL)
