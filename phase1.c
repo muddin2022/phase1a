@@ -156,6 +156,12 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
 void TEMP_switchTo(int pid)
 {
+    unsigned int oldPsr = disableInterrupts();
+    struct PCB *switchTo = &procTable[pid % MAXPROC];
+    
+    USLOSS_ContextSwitch(NULL, &switchTo->context);
+
+    restoreInterrupts(oldPsr);
 }
 
 int join(int *status)
