@@ -130,7 +130,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     struct PCB *newProc = &procTable[slot];
 
     // todo: set name of new process
-    strcpy(newProc->name, *name);
+    strcpy(newProc->name, name);
     newProc->pid = pid;
     newProc->priority = priority;
     newProc->stack = malloc(stacksize);
@@ -149,6 +149,12 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
 void TEMP_switchTo(int pid)
 {
+    unsigned int oldPsr = disableInterrupts();
+    struct PCB *switchTo = &procTable[pid % MAXPROC];
+    
+    USLOSS_ContextSwitch(NULL, &switchTo->context);
+
+    restoreInterrupts(oldPsr);
 }
 
 int join(int *status)
