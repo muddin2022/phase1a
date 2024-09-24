@@ -38,6 +38,7 @@ unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
 void init(void);
 int testcaseMainWrapper(void *args);
+void sporkTrampoline(void);
 
 /* --- Functions from spec --- */
 void phase1_init(void)
@@ -49,7 +50,7 @@ void phase1_init(void)
     struct PCB initProc;
     getNextPid();
     initProc.pid = nextPid;
-    strcpy(*initProc.name, "init");
+    strcpy(initProc.name, "init");
     initProc.priority = 6;
     initProc.stackSize = USLOSS_MIN_STACK;
     initProc.funcPtr = &init;
@@ -60,10 +61,11 @@ void phase1_init(void)
     USLOSS_ContextInit(&procTable[index].context, initStackPtr, USLOSS_MIN_STACK, NULL, initProc.funcPtr);
 
     currProc = &initProc;
-    restoreInterrupts(oldPsr);   
+    restoreInterrupts(oldPsr);
 }
 
-void init(void) {
+void init(void)
+{
     unsigned int oldPsr = disableInterrupts();
 
     // start services
@@ -82,23 +84,30 @@ void init(void) {
     // call join to clean up procTable
     int deadPid = 1;
     int status, index;
-    while (deadPid > 0) {
+    while (deadPid > 0)
+    {
         deadPid = join(&status);
         index = deadPid % MAXPROC;
         memset(&procTable[index], 0, sizeof(struct PCB));
     }
 
-    if (deadPid == -2) {
+    if (deadPid == -2)
+    {
         USLOSS_Console("ERROR: init has no more children, terminating simulation\n");
         USLOSS_Halt(1);
-        return; 
-
-    } else if (deadPid == -3) {
+        return;
+    }
+    else if (deadPid == -3)
+    {
         USLOSS_Console("ERROR: status pointer is null");
     }
 }
 
-/* --- Helper functions, not defined in spec --- */ 
+void sporkTrampoline()
+{
+    sporkTData.func(sporkTData.arg);
+}
+
 /*
  * Create child proc of current proc
  * func takes a void arg and returns an int
@@ -126,7 +135,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     sporkTData.func = func;
     sporkTData.arg = arg;
 
-    USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, sporkTrampoline());
+    USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline);
 
     // dont need to call dispatcher in phase1a?
 
@@ -137,12 +146,19 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     return pid;
 }
 
-void sporkTrampoline()
+void TEMP_switchTo(int pid)
 {
-    sporkTData.func(sporkTData.arg);
 }
 
-void init(void)
+int join(int *status)
+{
+}
+
+void quit_phase_1a(int status, int switchToPid)
+{
+}
+
+void dumpProcesses(void)
 {
 }
 
@@ -152,7 +168,8 @@ void init(void)
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
-void getNextPid(void) {
+void getNextPid(void)
+{
     // check if nextPid already in use
     while (procTable[nextPid % MAXPROC].pid != 0)
     {
@@ -182,7 +199,7 @@ void restoreInterrupts(unsigned int oldPsr)
  * Creates a wrapper around testcase_main so that spork can be called. Gets
  * called by init().
  */
-int testcaseMainWrapper(void *args) {
+int testcaseMainWrapper(void *args)
+{
     return testcase_main();
 }
-
