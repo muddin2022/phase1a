@@ -3,24 +3,23 @@
 #include "phase1.h"
 #include <string.h>
 
-struct SporkTramData
-{
-    int (*func)(void *);
-    void *arg;
-} sporkTData;
-
 struct PCB
 {
     int pid;
-    char *name[MAXNAME];
+    char name[MAXNAME];
     int status;
     int priority;
     int stackSize;
     USLOSS_Context context;
-    void (*funcPtr)(void);
     char *stack;
 
+    // void (*funcPtr)(void);
+    int (*funcPtr)(void *);
+    void *arg;
+    int retVal;
+
     struct PCB *parent;
+    struct PCB *oldestChild;
     struct PCB *prevSibling;
     struct PCB *nextSibling;
 };
@@ -29,14 +28,13 @@ struct PCB
 struct PCB *currProc;
 struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
-char *initStackPtr;
 int nextPid = 1;
 
 /* --- Function prototypes --- */
 void getNextPid(void);
 unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
-void init(void);
+int init(void *);
 int testcaseMainWrapper(void *args);
 void sporkTrampoline(void);
 
@@ -47,24 +45,26 @@ void phase1_init(void)
 
     memset(procTable, 0, sizeof(procTable));
 
-    struct PCB initProc;
     getNextPid();
-    initProc.pid = nextPid;
-    strcpy(initProc.name, "init");
-    initProc.priority = 6;
-    initProc.stackSize = USLOSS_MIN_STACK;
-    initProc.funcPtr = &init;
+    int index = nextPid % MAXPROC;
+    struct PCB *initProc = &procTable[index];
 
-    int index = initProc.pid % MAXPROC;
-    procTable[index] = initProc;
+    initProc->pid = nextPid;
+    strcpy(initProc->name, "init");
+    initProc->priority = 6;
+    initProc->stackSize = USLOSS_MIN_STACK;
+    initProc->funcPtr = &init;
+    initProc->stack = initStack;
 
-    USLOSS_ContextInit(&procTable[index].context, initStackPtr, USLOSS_MIN_STACK, NULL, initProc.funcPtr);
+    initProc->arg = NULL;
 
-    currProc = &initProc;
+    USLOSS_ContextInit(&(procTable[index].context), initProc->stack, USLOSS_MIN_STACK, NULL, &sporkTrampoline);
+
+    currProc = initProc;
     restoreInterrupts(oldPsr);
 }
 
-void init(void)
+int init(void *)
 {
     unsigned int oldPsr = disableInterrupts();
 
@@ -95,17 +95,19 @@ void init(void)
     {
         USLOSS_Console("ERROR: init has no more children, terminating simulation\n");
         USLOSS_Halt(1);
-        return;
+        return 0;
     }
     else if (deadPid == -3)
     {
         USLOSS_Console("ERROR: status pointer is null");
     }
+
+    return 0;
 }
 
 void sporkTrampoline()
 {
-    sporkTData.func(sporkTData.arg);
+    currProc->retVal = currProc->funcPtr(currProc->arg);
 }
 
 /*
@@ -127,21 +129,20 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
     struct PCB *newProc = &procTable[slot];
 
+    // todo: set name of new process
+    strcpy(newProc->name, *name);
     newProc->pid = pid;
     newProc->priority = priority;
-    newProc->funcPtr = func(&arg);
     newProc->stack = malloc(stacksize);
 
-    sporkTData.func = func;
-    sporkTData.arg = arg;
+    newProc->funcPtr = func;
+    newProc->arg = arg;
+
+    //use currProc to make child list
 
     USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline);
 
-    // dont need to call dispatcher in phase1a?
-
-    // reenable interrupts then call startFunc(func parameter)
     restoreInterrupts(oldPsr);
-    func(&arg);
 
     return pid;
 }
