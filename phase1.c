@@ -29,6 +29,7 @@ struct PCB *currProc;
 struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
 int nextPid = 1;
+unsigned int gOldPsr;
 
 /* --- Function prototypes --- */
 void getNextPid(void);
@@ -76,10 +77,10 @@ int init(void *)
     phase5_mmu_pageTable_alloc(currProc->pid);
     phase5_mmu_pageTable_free(currProc->pid, NULL);
 
-    restoreInterrupts(oldPsr);
-
     // create testcase_main proc
-    spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
+    int pid = spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
+    currProc->newestChild = &procTable[pid % MAXPROC];
+    TEMP_switchTo(pid);
 
     // call join to clean up procTable
     int deadPid = 1;
@@ -102,6 +103,8 @@ int init(void *)
         USLOSS_Console("ERROR: status pointer is null");
     }
 
+    restoreInterrupts(oldPsr);
+
     return 0;
 }
 
@@ -119,6 +122,7 @@ void addChild(struct PCB *parent, struct PCB *child)
 
 void sporkTrampoline()
 {
+    restoreInterrupts(gOldPsr);
     currProc->retVal = currProc->funcPtr(currProc->arg);
 }
 
@@ -157,10 +161,18 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 void TEMP_switchTo(int pid)
 {
     unsigned int oldPsr = disableInterrupts();
-    struct PCB *switchTo = &procTable[pid % MAXPROC];
-    
-    USLOSS_ContextSwitch(NULL, &switchTo->context);
+    gOldPsr = oldPsr;
 
+    struct PCB *oldProc = currProc;
+    struct PCB *switchTo = &procTable[pid % MAXPROC];
+    currProc = switchTo;
+    
+    if (currProc->pid == 1) {
+        USLOSS_ContextSwitch(NULL, &switchTo->context);
+    }  
+    else {
+        USLOSS_ContextSwitch(&oldProc->context, &switchTo->context);
+    }
     restoreInterrupts(oldPsr);
 }
 
@@ -198,7 +210,8 @@ void getNextPid(void)
 unsigned int disableInterrupts(void)
 {
     unsigned int oldPsr = USLOSS_PsrGet();
-    return USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
+    USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
+    return oldPsr;
 }
 
 /*
