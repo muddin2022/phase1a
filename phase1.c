@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "phase1.h"
 #include <string.h>
 
@@ -12,8 +13,8 @@ struct PCB
     int stackSize;
     USLOSS_Context context;
     char *stack;
+    bool isDead;
 
-    // void (*funcPtr)(void);
     int (*funcPtr)(void *);
     void *arg;
     int retVal;
@@ -56,6 +57,7 @@ void phase1_init(void)
     initProc->stackSize = USLOSS_MIN_STACK;
     initProc->funcPtr = &init;
     initProc->stack = initStack;
+    initProc->isDead = false;
 
     initProc->arg = NULL;
 
@@ -145,6 +147,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     newProc->pid = pid;
     newProc->priority = priority;
     newProc->stack = malloc(stacksize);
+    newProc->isDead = false;
 
     newProc->funcPtr = func;
     newProc->arg = arg;
@@ -178,6 +181,29 @@ void TEMP_switchTo(int pid)
 
 int join(int *status)
 {
+    if (status == NULL) {
+        return -3;
+    } 
+
+    // iterate through children, looking for a dead one
+    struct PCB *next = currProc->newestChild;
+    if (next == NULL) {
+        return -2;
+    }
+
+    int index, pid;
+    while (next != NULL) {
+        if (next->isDead) {
+            *status = next->status;
+            pid = next->pid;
+            index = pid % MAXPROC;
+            memset(&procTable[index], 0, sizeof(struct PCB));
+            return pid;
+        } else {
+            next = next->nextSibling;
+        }
+    }
+    return 0;
 }
 
 void quit_phase_1a(int status, int switchToPid)
