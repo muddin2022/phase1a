@@ -249,9 +249,12 @@ void getNextPid(void)
 
 void enforceKernelMode()
 {
-    USLOSS_Console("wtf: %d\n", (USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()));
+    if (!(USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()))
+    {
+        USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
+        USLOSS_Halt(1);
+    }
 }
-
 
 /*
  * Disables interrupts and return the old PSR value, so that interrupts
@@ -263,6 +266,7 @@ unsigned int disableInterrupts(void)
     USLOSS_PsrSet(oldPsr & USLOSS_PSR_CURRENT_INT);
 
     return oldPsr;
+
 }
 
 /*

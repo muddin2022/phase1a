@@ -9,212 +9,212 @@ EXPECTATION: main() creates many XXp1 children, and join()s all of them; then re
 
 *** Start of round 0 of the spork()/join() operations ***
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 3 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 4 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 5 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 6 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 7 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 8 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 9 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 10 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 11 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 12 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 13 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 14 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 15 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 16 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 17 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 18 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 19 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 20 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 21 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 22 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 23 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 24 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 25 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 26 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 27 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 28 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 29 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 30 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 31 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 32 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 33 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 34 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 35 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 36 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 37 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 38 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 39 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 40 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 41 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 42 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 43 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 3395
+XXp1(): started, pid = 6936
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 44 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
@@ -222,47 +222,47 @@ testcase_main(): after spork of child 44 -- you will see this after the just-cre
 **************** Calling dumpProcesses() *******************
 **************** end dumpProcesses() *******************
 
-testcase_main(): after join of child 44, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
-testcase_main(): after join of child 0, status = 3395
+testcase_main(): after join of child 44, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
+testcase_main(): after join of child 0, status = 6936
 ERROR: testcase_main(): join() after all of the children have been cleaned up worked, when it was supposed to return -2!!!  rc=0
 finish(): The simulation is now terminating.
