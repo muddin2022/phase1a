@@ -1,0 +1,17 @@
+Phase 1A TEMPORARY HACK: init() manually switching to PID 1.
+phase2_start_service_processes() called -- currently a NOP
+phase3_start_service_processes() called -- currently a NOP
+phase4_start_service_processes() called -- currently a NOP
+phase5_start_service_processes() called -- currently a NOP
+Phase 1A TEMPORARY HACK: init() manually switching to testcase_main() after using spork() to create it.
+testcase_main(): started
+EXPECTATION: Create XXp1 (moderate priority); that creates 2 XXp2 children (low priority).  XXp1 will block on join(), which will cause main() to wake up and report the spork() results - after which the XXp2 processes will run.
+Phase 1A TEMPORARY HACK: Manually switching to XXp1()
+XXp1(): started
+XXp1(): arg = 'XXp1'
+XXp1(): executing spork of first child
+XXp1(): spork of first child returned pid = 4
+XXp1(): executing spork of second child
+XXp1(): spork of second child returned pid = 5
+XXp1(): performing first join
+Phase 1A TEMPORARY HACK: Manually switching to testcase_main(), since XXp1 has created its two children, which are lower priority than 
