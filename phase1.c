@@ -263,8 +263,8 @@ void enforceKernelMode()
 unsigned int disableInterrupts(void)
 {
     unsigned int oldPsr = USLOSS_PsrGet();
-    USLOSS_PsrSet(oldPsr & USLOSS_PSR_CURRENT_INT);
-
+    USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
+    
     return oldPsr;
 
 }
@@ -274,7 +274,7 @@ unsigned int disableInterrupts(void)
  */
 void restoreInterrupts(unsigned int oldPsr)
 {
-    USLOSS_PsrSet(oldPsr);
+    USLOSS_PsrSet(oldPsr | USLOSS_PSR_CURRENT_INT);
 }
 
 /*
