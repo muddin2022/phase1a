@@ -244,6 +244,30 @@ void quit_phase_1a(int status, int switchToPid)
 
 void dumpProcesses(void)
 {
+    unsigned int oldPsr = disableInterrupts();
+
+    printf("PID  PPID  NAME              PRIORITY  STATE\n");
+
+    char state[15];
+    int pid, ppid, priority;
+    char name[MAXNAME];
+    for (int i = 0; i < MAXPROC; i++) {
+        struct PCB proc = procTable[i];
+        pid = proc.pid;
+        if (pid != 0) {
+            snprintf(state, sizeof(state), "%d", proc.status);
+            if (pid == 1) {
+                ppid = 0;
+            } else {
+                ppid = (proc.parent)->pid;
+            }
+            strcpy(name, proc.name);
+            priority = proc.priority;
+            printf("%3d  %4d  %-17s %-9d %s\n", pid, ppid, name, priority, state);
+        }
+    }
+
+    restoreInterrupts(oldPsr);
 }
 
 /* --- Helper functions, not defined in spec --- */
