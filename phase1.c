@@ -251,25 +251,26 @@ void dumpProcesses(void)
     char state[15];
     int pid, ppid, priority, status;
     char name[MAXNAME];
+
     for (int i = 0; i < MAXPROC; i++) {
-        struct PCB proc = procTable[i];
-        pid = proc.pid;
+        struct PCB *proc = &procTable[i];
+        pid = proc->pid;
         if (pid != 0) {
-            status = proc.status;
-            if (status == 0) {
-                snprintf(state, sizeof(state), "Runnable");
-            } else if (proc.pid == currProc->pid) {
+            status = proc->status;
+            if (proc->pid == currProc->pid) {
                 snprintf(state, sizeof(state), "Running");
+            } else if (status == 0) {
+                snprintf(state, sizeof(state), "Runnable");
             } else {
                 snprintf(state, sizeof(state), "Terminated(%d)", status);
             }
             if (pid == 1) {
                 ppid = 0;
             } else {
-                ppid = (proc.parent)->pid;
+                ppid = (proc->parent)->pid;
             }
-            strcpy(name, proc.name);
-            priority = proc.priority;
+            strcpy(name, proc->name);
+            priority = proc->priority;
             printf("%4d  %4d  %-17s %-9d %s\n", pid, ppid, name, priority, state);
         }
     }

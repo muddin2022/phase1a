@@ -12,3 +12,8 @@ Phase 1A TEMPORARY HACK: Manually switching to XXp2()
 -2 returned, which is correct!
 -2 returned, which is correct!
 -2 returned, which is correct!
+testcase_main(): created XXp2 with pid = 3
+testcase_main(): calling join
+testcase_main(): join returned pid = 3, status = 0
+Phase 1A TEMPORARY HACK: testcase_main() returned, simulation will now halt.
+finish(): The simulation is now terminating.
