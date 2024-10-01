@@ -84,7 +84,7 @@ int init(void *)
 
     // create testcase_main proc
     USLOSS_Console("Phase 1A TEMPORARY HACK: init() manually switching to testcase_main() after using spork() to create it.\n");
-    int pid = spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
+    int pid = spork("testcase_main", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
     currProc->newestChild = &procTable[pid % MAXPROC];
     TEMP_switchTo(pid);
 
@@ -177,6 +177,8 @@ void TEMP_switchTo(int pid)
 
 int join(int *status)
 {
+    unsigned int oldPsr = disableInterrupts();
+
     if (status == NULL)
     {
         return -3;
@@ -223,6 +225,7 @@ int join(int *status)
             next = next->nextSibling;
         }
     }
+    restoreInterrupts(oldPsr);
     return 0; 
 }
 
@@ -241,6 +244,37 @@ void quit_phase_1a(int status, int switchToPid)
 
 void dumpProcesses(void)
 {
+    unsigned int oldPsr = disableInterrupts();
+
+    printf("PID  PPID  NAME              PRIORITY  STATE\n");
+
+    char state[15];
+    int pid, ppid, priority, status;
+    char name[MAXNAME];
+    for (int i = 0; i < MAXPROC; i++) {
+        struct PCB proc = procTable[i];
+        pid = proc.pid;
+        if (pid != 0) {
+            status = proc.status;
+            if (status == 0) {
+                snprintf(state, sizeof(state), "Runnable");
+            } else if (proc.pid == currProc->pid) {
+                snprintf(state, sizeof(state), "Running");
+            } else {
+                snprintf(state, sizeof(state), "Terminated(%d)", status);
+            }
+            if (pid == 1) {
+                ppid = 0;
+            } else {
+                ppid = (proc.parent)->pid;
+            }
+            strcpy(name, proc.name);
+            priority = proc.priority;
+            printf("%4d  %4d  %-17s %-9d %s\n", pid, ppid, name, priority, state);
+        }
+    }
+
+    restoreInterrupts(oldPsr);
 }
 
 /* --- Helper functions, not defined in spec --- */
