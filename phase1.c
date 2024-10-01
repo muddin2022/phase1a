@@ -84,7 +84,7 @@ int init(void *)
 
     // create testcase_main proc
     USLOSS_Console("Phase 1A TEMPORARY HACK: init() manually switching to testcase_main() after using spork() to create it.\n");
-    int pid = spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
+    int pid = spork("testcase_main", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
     currProc->newestChild = &procTable[pid % MAXPROC];
     TEMP_switchTo(pid);
 
@@ -249,13 +249,20 @@ void dumpProcesses(void)
     printf("PID  PPID  NAME              PRIORITY  STATE\n");
 
     char state[15];
-    int pid, ppid, priority;
+    int pid, ppid, priority, status;
     char name[MAXNAME];
     for (int i = 0; i < MAXPROC; i++) {
         struct PCB proc = procTable[i];
         pid = proc.pid;
         if (pid != 0) {
-            snprintf(state, sizeof(state), "%d", proc.status);
+            status = proc.status;
+            if (status == 0) {
+                snprintf(state, sizeof(state), "Runnable");
+            } else if (proc.pid == currProc->pid) {
+                snprintf(state, sizeof(state), "Running");
+            } else {
+                snprintf(state, sizeof(state), "Terminated(%d)", status);
+            }
             if (pid == 1) {
                 ppid = 0;
             } else {
@@ -263,7 +270,7 @@ void dumpProcesses(void)
             }
             strcpy(name, proc.name);
             priority = proc.priority;
-            printf("%3d  %4d  %-17s %-9d %s\n", pid, ppid, name, priority, state);
+            printf("%4d  %4d  %-17s %-9d %s\n", pid, ppid, name, priority, state);
         }
     }
 
