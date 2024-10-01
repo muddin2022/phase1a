@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "phase1.h"
 #include <string.h>
 
@@ -12,8 +13,8 @@ struct PCB
     int stackSize;
     USLOSS_Context context;
     char *stack;
+    bool isDead;
 
-    // void (*funcPtr)(void);
     int (*funcPtr)(void *);
     void *arg;
     int retVal;
@@ -38,6 +39,7 @@ void restoreInterrupts(unsigned int);
 int init(void *);
 int testcaseMainWrapper(void *args);
 void sporkTrampoline(void);
+void enforceKernelMode();
 
 /* --- Functions from spec --- */
 void phase1_init(void)
@@ -56,6 +58,7 @@ void phase1_init(void)
     initProc->stackSize = USLOSS_MIN_STACK;
     initProc->funcPtr = &init;
     initProc->stack = initStack;
+    initProc->isDead = false;
 
     initProc->arg = NULL;
 
@@ -78,6 +81,7 @@ int init(void *)
     phase5_mmu_pageTable_free(currProc->pid, NULL);
 
     // create testcase_main proc
+    USLOSS_Console("Phase 1A TEMPORARY HACK: init() manually switching to testcase_main() after using spork() to create it.\n");
     int pid = spork("testcaseMain", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
     currProc->newestChild = &procTable[pid % MAXPROC];
     TEMP_switchTo(pid);
@@ -108,18 +112,6 @@ int init(void *)
     return 0;
 }
 
-// add child process to parent
-void addChild(struct PCB *parent, struct PCB *child)
-{
-    if (parent->newestChild != NULL)
-    {
-        child->nextSibling = parent->newestChild;
-        child->nextSibling->prevSibling = child;
-    }
-    child->parent = parent;
-    parent->newestChild = child;
-}
-
 void sporkTrampoline()
 {
     restoreInterrupts(gOldPsr);
@@ -128,6 +120,8 @@ void sporkTrampoline()
 
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
+    enforceKernelMode();
+
     // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
 
@@ -145,6 +139,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     newProc->pid = pid;
     newProc->priority = priority;
     newProc->stack = malloc(stacksize);
+    newProc->isDead = false;
 
     newProc->funcPtr = func;
     newProc->arg = arg;
@@ -166,11 +161,13 @@ void TEMP_switchTo(int pid)
     struct PCB *oldProc = currProc;
     struct PCB *switchTo = &procTable[pid % MAXPROC];
     currProc = switchTo;
-    
-    if (currProc->pid == 1) {
+
+    if (currProc->pid == 1)
+    {
         USLOSS_ContextSwitch(NULL, &switchTo->context);
-    }  
-    else {
+    }
+    else
+    {
         USLOSS_ContextSwitch(&oldProc->context, &switchTo->context);
     }
     restoreInterrupts(oldPsr);
@@ -178,10 +175,66 @@ void TEMP_switchTo(int pid)
 
 int join(int *status)
 {
+    if (status == NULL)
+    {
+        return -3;
+    }
+
+    // iterate through children, looking for a dead one
+    struct PCB *next = currProc->newestChild;
+    if (next == NULL)
+    {
+        return -2;
+    }
+
+    int index, pid;
+    while (next != NULL)
+    {
+        if (next->isDead)
+        {
+            *status = next->status;
+            pid = next->pid;
+            index = pid % MAXPROC;
+            // next is an only child
+            if ((next == currProc->newestChild) && (next->nextSibling == NULL)) {
+                currProc->newestChild = NULL;
+            }
+            // next has next siblings
+            else if (next->nextSibling != NULL) {
+                // next is newestChild
+                if (next == currProc->newestChild) {
+                    currProc->newestChild = next->nextSibling;
+                    (next->nextSibling)->prevSibling = NULL;
+                }
+                // next is a middle child
+                else {
+                    (next->prevSibling)->nextSibling = next->nextSibling;
+                    (next->nextSibling)->prevSibling = next->prevSibling;
+                }
+            }
+
+            memset(&procTable[index], 0, sizeof(struct PCB));
+            return pid;
+        }
+        else
+        {
+            next = next->nextSibling;
+        }
+    }
+    return 0; 
 }
 
 void quit_phase_1a(int status, int switchToPid)
 {
+    currProc->status = status;
+    currProc->isDead = true;
+
+    removeChild();
+
+    TEMP_switchTo(currProc->parent->pid);
+
+    while (true)
+        ;
 }
 
 void dumpProcesses(void)
@@ -194,12 +247,52 @@ void dumpProcesses(void)
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
+int getpid()
+{
+    return currProc->pid;
+}
+
+void removeChild()
+{
+    if (currProc->parent->newestChild == currProc)
+    {
+        currProc->parent->newestChild = currProc->nextSibling;
+        currProc->nextSibling->prevSibling = NULL;
+    }
+    else
+    {
+        currProc->prevSibling->nextSibling = currProc->nextSibling;
+        currProc->nextSibling->prevSibling = currProc->prevSibling;
+    }
+}
+
+// add child process to parent
+void addChild(struct PCB *parent, struct PCB *child)
+{
+    if (parent->newestChild != NULL)
+    {
+        child->nextSibling = parent->newestChild;
+        child->nextSibling->prevSibling = child;
+    }
+    child->parent = parent;
+    parent->newestChild = child;
+}
+
 void getNextPid(void)
 {
     // check if nextPid already in use
     while (procTable[nextPid % MAXPROC].pid != 0)
     {
         nextPid++;
+    }
+}
+
+void enforceKernelMode()
+{
+    if (!(USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()))
+    {
+        USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
+        USLOSS_Halt(1);
     }
 }
 
@@ -211,6 +304,7 @@ unsigned int disableInterrupts(void)
 {
     unsigned int oldPsr = USLOSS_PsrGet();
     USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
+
     return oldPsr;
 }
 
@@ -219,7 +313,7 @@ unsigned int disableInterrupts(void)
  */
 void restoreInterrupts(unsigned int oldPsr)
 {
-    USLOSS_PsrSet(oldPsr);
+    USLOSS_PsrSet(oldPsr | USLOSS_PSR_CURRENT_INT);
 }
 
 /*
@@ -228,5 +322,8 @@ void restoreInterrupts(unsigned int oldPsr)
  */
 int testcaseMainWrapper(void *args)
 {
-    return testcase_main();
+    testcase_main();
+    USLOSS_Console("Phase 1A TEMPORARY HACK: testcase_main() returned, simulation will now halt.\n");
+    USLOSS_Halt(0);
+    return 0;
 }
