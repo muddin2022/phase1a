@@ -207,6 +207,24 @@ int join(int *status)
             *status = next->status;
             pid = next->pid;
             index = pid % MAXPROC;
+            // next is an only child
+            if ((next == currProc->newestChild) && (next->nextSibling == NULL)) {
+                currProc->newestChild = NULL;
+            }
+            // next has next siblings
+            else if (next->nextSibling != NULL) {
+                // next is newestChild
+                if (next == currProc->newestChild) {
+                    currProc->newestChild = next->nextSibling;
+                    (next->nextSibling)->prevSibling = NULL;
+                }
+                // next is a middle child
+                else {
+                    (next->prevSibling)->nextSibling = next->nextSibling;
+                    (next->nextSibling)->prevSibling = next->prevSibling;
+                }
+            }
+
             memset(&procTable[index], 0, sizeof(struct PCB));
             return pid;
         }
@@ -215,7 +233,7 @@ int join(int *status)
             next = next->nextSibling;
         }
     }
-    return 0;
+    return 0; // reaching here
 }
 
 void quit_phase_1a(int status, int switchToPid)
