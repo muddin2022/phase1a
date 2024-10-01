@@ -233,7 +233,7 @@ int join(int *status)
             next = next->nextSibling;
         }
     }
-    return 0; // reaching here
+    return 0; 
 }
 
 void quit_phase_1a(int status, int switchToPid)
