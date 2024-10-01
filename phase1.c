@@ -40,6 +40,8 @@ int init(void *);
 int testcaseMainWrapper(void *args);
 void sporkTrampoline(void);
 void enforceKernelMode();
+void addChild(struct PCB *parent, struct PCB *child);
+// void removeChild();
 
 /* --- Functions from spec --- */
 void phase1_init(void)
@@ -229,7 +231,7 @@ void quit_phase_1a(int status, int switchToPid)
     currProc->status = status;
     currProc->isDead = true;
 
-    removeChild();
+    //removeChild();
 
     TEMP_switchTo(currProc->parent->pid);
 
