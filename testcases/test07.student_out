@@ -11,11 +11,3 @@ Phase 1A TEMPORARY HACK: Manually switching to XXp2()
 XXp2(): started
 XXp2(): arg = 'XXp2'
 XXp2(): terminating!
-XXp1(): spork() rc=4
-XXp1(): This process will terminate.  This should cause an error check in quit() to fire, report an error, and kill the simulation.
-********************
-* TESTCASE FAILURE *
-********************
-If you ever see this error message, then it means that you don't have sufficient error checking in quit().
-Phase 1A TEMPORARY HACK: testcase_main() returned, simulation will now halt.
-finish(): The simulation is now terminating.

@@ -112,18 +112,6 @@ int init(void *)
     return 0;
 }
 
-// add child process to parent
-void addChild(struct PCB *parent, struct PCB *child)
-{
-    if (parent->newestChild != NULL)
-    {
-        child->nextSibling = parent->newestChild;
-        child->nextSibling->prevSibling = child;
-    }
-    child->parent = parent;
-    parent->newestChild = child;
-}
-
 void sporkTrampoline()
 {
     restoreInterrupts(gOldPsr);
@@ -223,9 +211,12 @@ void quit_phase_1a(int status, int switchToPid)
     currProc->status = status;
     currProc->isDead = true;
 
+    removeChild();
+
     TEMP_switchTo(currProc->parent->pid);
 
-    while(true);
+    while (true)
+        ;
 }
 
 void dumpProcesses(void)
@@ -238,6 +229,37 @@ void dumpProcesses(void)
  * that is alredy filled. It keeps checking for a blank spot in the procTable and
  * updates the global variable.
  */
+int getpid()
+{
+    return currProc->pid;
+}
+
+void removeChild()
+{
+    if (currProc->parent->newestChild == currProc)
+    {
+        currProc->parent->newestChild = currProc->nextSibling;
+        currProc->nextSibling->prevSibling = NULL;
+    }
+    else
+    {
+        currProc->prevSibling->nextSibling = currProc->nextSibling;
+        currProc->nextSibling->prevSibling = currProc->prevSibling;
+    }
+}
+
+// add child process to parent
+void addChild(struct PCB *parent, struct PCB *child)
+{
+    if (parent->newestChild != NULL)
+    {
+        child->nextSibling = parent->newestChild;
+        child->nextSibling->prevSibling = child;
+    }
+    child->parent = parent;
+    parent->newestChild = child;
+}
+
 void getNextPid(void)
 {
     // check if nextPid already in use
@@ -264,9 +286,8 @@ unsigned int disableInterrupts(void)
 {
     unsigned int oldPsr = USLOSS_PsrGet();
     USLOSS_PsrSet(oldPsr & ~USLOSS_PSR_CURRENT_INT);
-    
-    return oldPsr;
 
+    return oldPsr;
 }
 
 /*
