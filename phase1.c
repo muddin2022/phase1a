@@ -177,6 +177,8 @@ void TEMP_switchTo(int pid)
 
 int join(int *status)
 {
+    unsigned int oldPsr = disableInterrupts();
+
     if (status == NULL)
     {
         return -3;
@@ -223,6 +225,7 @@ int join(int *status)
             next = next->nextSibling;
         }
     }
+    restoreInterrupts(oldPsr);
     return 0; 
 }
 
