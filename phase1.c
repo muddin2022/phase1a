@@ -30,6 +30,7 @@ struct PCB *currProc;
 struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
 int nextPid = 1;
+int filledSlots = 0;
 unsigned int gOldPsr;
 
 /* --- Function prototypes --- */
@@ -41,7 +42,6 @@ int testcaseMainWrapper(void *args);
 void sporkTrampoline(void);
 void enforceKernelMode();
 void addChild(struct PCB *parent, struct PCB *child);
-// void removeChild();
 
 /* --- Functions from spec --- */
 void phase1_init(void)
@@ -65,6 +65,7 @@ void phase1_init(void)
     initProc->arg = NULL;
 
     USLOSS_ContextInit(&(procTable[index].context), initProc->stack, USLOSS_MIN_STACK, NULL, &sporkTrampoline);
+    filledSlots++;
 
     currProc = initProc;
     restoreInterrupts(oldPsr);
@@ -126,6 +127,9 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
     // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
+    if (filledSlots == 50) {
+        return -1;
+    }
 
     getNextPid();
     int pid = nextPid;
@@ -149,6 +153,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     addChild(currProc, newProc);
 
     USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline);
+    filledSlots++;
 
     restoreInterrupts(oldPsr);
 
@@ -223,6 +228,7 @@ int join(int *status)
 
             free(next->stack);
             memset(&procTable[index], 0, sizeof(struct PCB));
+            filledSlots--;
             return pid;
         }
         else
