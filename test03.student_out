@@ -312,6 +312,11 @@ testcase_main(): after join of child 3, status = 3
 
 *** Start of round 1 of the spork()/join() operations ***
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
+XXp1(): started, pid = 44
+XXp1(): arg = 'XXp1'
+XXp1(): this process will terminate immediately.
+testcase_main(): after spork of child 44 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
+Phase 1A TEMPORARY HACK: Manually switching to XXp1()
 XXp1(): started, pid = 45
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
@@ -516,11 +521,6 @@ XXp1(): started, pid = 87
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 87 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
-Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 88
-XXp1(): arg = 'XXp1'
-XXp1(): this process will terminate immediately.
-testcase_main(): after spork of child 88 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 
 **************** Calling dumpProcesses() *******************
 PID  PPID  NAME              PRIORITY  STATE
@@ -562,7 +562,7 @@ PID  PPID  NAME              PRIORITY  STATE
   85     2  XXp1              2         Terminated(85)
   86     2  XXp1              2         Terminated(86)
   87     2  XXp1              2         Terminated(87)
-  88     2  XXp1              2         Terminated(88)
+  44     2  XXp1              2         Terminated(44)
   45     2  XXp1              2         Terminated(45)
   46     2  XXp1              2         Terminated(46)
   47     2  XXp1              2         Terminated(47)
@@ -570,7 +570,6 @@ PID  PPID  NAME              PRIORITY  STATE
   49     2  XXp1              2         Terminated(49)
 **************** end dumpProcesses() *******************
 
-testcase_main(): after join of child 88, status = 88
 testcase_main(): after join of child 87, status = 87
 testcase_main(): after join of child 86, status = 86
 testcase_main(): after join of child 85, status = 85
@@ -612,8 +611,19 @@ testcase_main(): after join of child 48, status = 48
 testcase_main(): after join of child 47, status = 47
 testcase_main(): after join of child 46, status = 46
 testcase_main(): after join of child 45, status = 45
+testcase_main(): after join of child 44, status = 44
 
 *** Start of round 2 of the spork()/join() operations ***
+Phase 1A TEMPORARY HACK: Manually switching to XXp1()
+XXp1(): started, pid = 87
+XXp1(): arg = 'XXp1'
+XXp1(): this process will terminate immediately.
+testcase_main(): after spork of child 87 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
+Phase 1A TEMPORARY HACK: Manually switching to XXp1()
+XXp1(): started, pid = 88
+XXp1(): arg = 'XXp1'
+XXp1(): this process will terminate immediately.
+testcase_main(): after spork of child 88 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 Phase 1A TEMPORARY HACK: Manually switching to XXp1()
 XXp1(): started, pid = 89
 XXp1(): arg = 'XXp1'
@@ -814,52 +824,42 @@ XXp1(): started, pid = 130
 XXp1(): arg = 'XXp1'
 XXp1(): this process will terminate immediately.
 testcase_main(): after spork of child 130 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
-Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 131
-XXp1(): arg = 'XXp1'
-XXp1(): this process will terminate immediately.
-testcase_main(): after spork of child 131 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
-Phase 1A TEMPORARY HACK: Manually switching to XXp1()
-XXp1(): started, pid = 132
-XXp1(): arg = 'XXp1'
-XXp1(): this process will terminate immediately.
-testcase_main(): after spork of child 132 -- you will see this after the just-created child runs, and completes.  So expect an alternation of XXp1() output, followed by these spork messages.
 
 **************** Calling dumpProcesses() *******************
 PID  PPID  NAME              PRIORITY  STATE
- 100     2  XXp1              2         Terminated(100)
+ 100     2  XXp1              2         Terminated(100
    1     0  init              6         Runnable
    2     1  testcase_main     3         Running
- 103     2  XXp1              2         Terminated(103)
- 104     2  XXp1              2         Terminated(104)
- 105     2  XXp1              2         Terminated(105)
- 106     2  XXp1              2         Terminated(106)
- 107     2  XXp1              2         Terminated(107)
- 108     2  XXp1              2         Terminated(108)
- 109     2  XXp1              2         Terminated(109)
- 110     2  XXp1              2         Terminated(110)
- 111     2  XXp1              2         Terminated(111)
- 112     2  XXp1              2         Terminated(112)
- 113     2  XXp1              2         Terminated(113)
- 114     2  XXp1              2         Terminated(114)
- 115     2  XXp1              2         Terminated(115)
- 116     2  XXp1              2         Terminated(116)
- 117     2  XXp1              2         Terminated(117)
- 118     2  XXp1              2         Terminated(118)
- 119     2  XXp1              2         Terminated(119)
- 120     2  XXp1              2         Terminated(120)
- 121     2  XXp1              2         Terminated(121)
- 122     2  XXp1              2         Terminated(122)
- 123     2  XXp1              2         Terminated(123)
- 124     2  XXp1              2         Terminated(124)
- 125     2  XXp1              2         Terminated(125)
- 126     2  XXp1              2         Terminated(126)
- 127     2  XXp1              2         Terminated(127)
- 128     2  XXp1              2         Terminated(128)
- 129     2  XXp1              2         Terminated(129)
- 130     2  XXp1              2         Terminated(130)
- 131     2  XXp1              2         Terminated(131)
- 132     2  XXp1              2         Terminated(132)
+ 103     2  XXp1              2         Terminated(103
+ 104     2  XXp1              2         Terminated(104
+ 105     2  XXp1              2         Terminated(105
+ 106     2  XXp1              2         Terminated(106
+ 107     2  XXp1              2         Terminated(107
+ 108     2  XXp1              2         Terminated(108
+ 109     2  XXp1              2         Terminated(109
+ 110     2  XXp1              2         Terminated(110
+ 111     2  XXp1              2         Terminated(111
+ 112     2  XXp1              2         Terminated(112
+ 113     2  XXp1              2         Terminated(113
+ 114     2  XXp1              2         Terminated(114
+ 115     2  XXp1              2         Terminated(115
+ 116     2  XXp1              2         Terminated(116
+ 117     2  XXp1              2         Terminated(117
+ 118     2  XXp1              2         Terminated(118
+ 119     2  XXp1              2         Terminated(119
+ 120     2  XXp1              2         Terminated(120
+ 121     2  XXp1              2         Terminated(121
+ 122     2  XXp1              2         Terminated(122
+ 123     2  XXp1              2         Terminated(123
+ 124     2  XXp1              2         Terminated(124
+ 125     2  XXp1              2         Terminated(125
+ 126     2  XXp1              2         Terminated(126
+ 127     2  XXp1              2         Terminated(127
+ 128     2  XXp1              2         Terminated(128
+ 129     2  XXp1              2         Terminated(129
+ 130     2  XXp1              2         Terminated(130
+  87     2  XXp1              2         Terminated(87)
+  88     2  XXp1              2         Terminated(88)
   89     2  XXp1              2         Terminated(89)
   90     2  XXp1              2         Terminated(90)
   91     2  XXp1              2         Terminated(91)
@@ -873,8 +873,6 @@ PID  PPID  NAME              PRIORITY  STATE
   99     2  XXp1              2         Terminated(99)
 **************** end dumpProcesses() *******************
 
-testcase_main(): after join of child 132, status = 132
-testcase_main(): after join of child 131, status = 131
 testcase_main(): after join of child 130, status = 130
 testcase_main(): after join of child 129, status = 129
 testcase_main(): after join of child 128, status = 128
@@ -915,5 +913,7 @@ testcase_main(): after join of child 92, status = 92
 testcase_main(): after join of child 91, status = 91
 testcase_main(): after join of child 90, status = 90
 testcase_main(): after join of child 89, status = 89
+testcase_main(): after join of child 88, status = 88
+testcase_main(): after join of child 87, status = 87
 Phase 1A TEMPORARY HACK: testcase_main() returned, simulation will now halt.
 finish(): The simulation is now terminating.

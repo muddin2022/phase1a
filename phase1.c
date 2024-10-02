@@ -30,6 +30,7 @@ struct PCB *currProc;
 struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
 int nextPid = 1;
+int lastPid = -1;
 unsigned int gOldPsr;
 
 /* --- Function prototypes --- */
@@ -128,6 +129,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     unsigned int oldPsr = disableInterrupts();
 
     getNextPid();
+    
     int pid = nextPid;
     int slot = pid % MAXPROC;
     if (procTable[slot].pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
@@ -200,29 +202,35 @@ int join(int *status)
             pid = next->pid;
             index = pid % MAXPROC;
             // next is an only child
-            if ((next == currProc->newestChild) && (next->nextSibling == NULL)) {
+            if ((next == currProc->newestChild) && (next->nextSibling == NULL))
+            {
                 currProc->newestChild = NULL;
             }
             // next has next siblings
-            else if (next->nextSibling != NULL) {
+            else if (next->nextSibling != NULL)
+            {
                 // next is newestChild
-                if (next == currProc->newestChild) {
+                if (next == currProc->newestChild)
+                {
                     currProc->newestChild = next->nextSibling;
                     (next->nextSibling)->prevSibling = NULL;
                 }
                 // next is a middle child
-                else {
+                else
+                {
                     (next->prevSibling)->nextSibling = next->nextSibling;
                     (next->nextSibling)->prevSibling = next->prevSibling;
                 }
             }
             // next does not have next siblings
-            else {
+            else
+            {
                 (next->prevSibling)->nextSibling = NULL;
             }
 
             free(next->stack);
             memset(&procTable[index], 0, sizeof(struct PCB));
+
             return pid;
         }
         else
@@ -231,12 +239,12 @@ int join(int *status)
         }
     }
     restoreInterrupts(oldPsr);
-    return 0; 
+    return 0;
 }
 
 void quit_phase_1a(int status, int switchToPid)
 {
-    if (currProc->newestChild != NULL) 
+    if (currProc->newestChild != NULL)
     {
         USLOSS_Console("ERROR: Process pid %d called quit() while it still had children.\n", currProc->pid);
         USLOSS_Halt(1);
@@ -256,25 +264,35 @@ void dumpProcesses(void)
 
     printf("PID  PPID  NAME              PRIORITY  STATE\n");
 
-    char state[15];
+    char state[16];
     int pid, ppid, priority, status;
     char name[MAXNAME];
 
-    for (int i = 0; i < MAXPROC; i++) {
+    for (int i = 0; i < MAXPROC; i++)
+    {
         struct PCB *proc = &procTable[i];
         pid = proc->pid;
-        if (pid != 0) {
+        if (pid != 0)
+        {
             status = proc->status;
-            if (proc->pid == currProc->pid) {
+            if (proc->pid == currProc->pid)
+            {
                 snprintf(state, sizeof(state), "Running");
-            } else if (status == 0) {
+            }
+            else if (status == 0)
+            {
                 snprintf(state, sizeof(state), "Runnable");
-            } else {
+            }
+            else
+            {
                 snprintf(state, sizeof(state), "Terminated(%d)", status);
             }
-            if (pid == 1) {
+            if (pid == 1)
+            {
                 ppid = 0;
-            } else {
+            }
+            else
+            {
                 ppid = (proc->parent)->pid;
             }
             strcpy(name, proc->name);
@@ -326,10 +344,11 @@ void addChild(struct PCB *parent, struct PCB *child)
 void getNextPid(void)
 {
     // check if nextPid already in use
-    while (procTable[nextPid % MAXPROC].pid != 0)
+    while (procTable[nextPid % MAXPROC].pid != 0 || nextPid <= lastPid)
     {
         nextPid++;
     }
+    lastPid = nextPid;
 }
 
 void enforceKernelMode()
