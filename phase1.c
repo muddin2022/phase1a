@@ -216,6 +216,10 @@ int join(int *status)
                     (next->nextSibling)->prevSibling = next->prevSibling;
                 }
             }
+            // next does not have next siblings
+            else {
+                (next->prevSibling)->nextSibling = NULL;
+            }
 
             memset(&procTable[index], 0, sizeof(struct PCB));
             return pid;
@@ -231,10 +235,13 @@ int join(int *status)
 
 void quit_phase_1a(int status, int switchToPid)
 {
+    if (currProc->newestChild != NULL) 
+    {
+        USLOSS_Console("ERROR: Process pid %d called quit() while it still had children.\n", currProc->pid);
+        USLOSS_Halt(1);
+    }
     currProc->status = status;
     currProc->isDead = true;
-
-    //removeChild();
 
     TEMP_switchTo(currProc->parent->pid);
 
