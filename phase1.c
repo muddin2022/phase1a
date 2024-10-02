@@ -332,6 +332,11 @@ void getNextPid(void)
     }
 }
 
+/*
+ * Checks to make sure that kernel code does not get called while in user mode. Takes an integer parameter to identify which kernel-mode function the process tried to call.
+ 1 = spork
+ 2 = quit_phase_1a
+ */
 void enforceKernelMode()
 {
     if (!(USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()))
