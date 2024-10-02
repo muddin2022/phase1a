@@ -221,6 +221,7 @@ int join(int *status)
                 (next->prevSibling)->nextSibling = NULL;
             }
 
+            free(next->stack);
             memset(&procTable[index], 0, sizeof(struct PCB));
             return pid;
         }
