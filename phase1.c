@@ -35,12 +35,12 @@ int filledSlots = 0;
 unsigned int gOldPsr;
 
 /* --------------------- Function prototypes --------------------- */
-void getNextPid();
-unsigned int disableInterrupts();
+void getNextPid(void);
+unsigned int disableInterrupts(void);
 void restoreInterrupts(unsigned int);
 int init(void *);
 int testcaseMainWrapper(void *args);
-void sporkTrampoline();
+void sporkTrampoline(void);
 void enforceKernelMode();
 void addChild(struct PCB *parent, struct PCB *child);
 
@@ -92,9 +92,13 @@ int init(void *)
 
     // call join to clean up procTable
     int deadPid = 1;
-    int status;
+    int status, index;
     while (deadPid > 0)
+    {
         deadPid = join(&status);
+        index = deadPid % MAXPROC;
+        memset(&procTable[index], 0, sizeof(struct PCB));
+    }
 
     if (deadPid == -2)
     {
@@ -121,8 +125,9 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 
     // check if procTable is full
     if (filledSlots == 50)
+    {
         return -1;
-
+    }
     getNextPid();
 
     int pid = nextPid;
