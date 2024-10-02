@@ -25,7 +25,7 @@ struct PCB
     struct PCB *nextSibling;
 };
 
-/* --- Global variables --- */
+/* ----------------------- Global variables ---------------------- */
 struct PCB *currProc;
 struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
@@ -33,17 +33,17 @@ int nextPid = 1;
 int filledSlots = 0;
 unsigned int gOldPsr;
 
-/* --- Function prototypes --- */
-void getNextPid(void);
-unsigned int disableInterrupts(void);
+/* --------------------- Function prototypes --------------------- */
+void getNextPid();
+unsigned int disableInterrupts();
 void restoreInterrupts(unsigned int);
 int init(void *);
 int testcaseMainWrapper(void *args);
-void sporkTrampoline(void);
+void sporkTrampoline();
 void enforceKernelMode();
 void addChild(struct PCB *parent, struct PCB *child);
 
-/* --- Functions from spec --- */
+/* --------------------- Functions from spec --------------------- */
 void phase1_init(void)
 {
     unsigned int oldPsr = disableInterrupts();
@@ -64,7 +64,8 @@ void phase1_init(void)
 
     initProc->arg = NULL;
 
-    USLOSS_ContextInit(&(procTable[index].context), initProc->stack, USLOSS_MIN_STACK, NULL, &sporkTrampoline);
+    USLOSS_ContextInit(&(procTable[index].context), initProc->stack, 
+        USLOSS_MIN_STACK, NULL, &sporkTrampoline);
     filledSlots++;
 
     currProc = initProc;
@@ -84,57 +85,52 @@ int init(void *)
     phase5_mmu_pageTable_free(currProc->pid, NULL);
 
     // create testcase_main proc
-    USLOSS_Console("Phase 1A TEMPORARY HACK: init() manually switching to testcase_main() after using spork() to create it.\n");
-    int pid = spork("testcase_main", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 3);
+    USLOSS_Console("Phase 1A TEMPORARY HACK: init() manually switching "
+        "to testcase_main() after using spork() to create it.\n");
+    int pid = spork("testcase_main", &testcaseMainWrapper, NULL, USLOSS_MIN_STACK, 
+        3);
     currProc->newestChild = &procTable[pid % MAXPROC];
     TEMP_switchTo(pid);
 
     // call join to clean up procTable
     int deadPid = 1;
-    int status, index;
+    int status;
     while (deadPid > 0)
-    {
         deadPid = join(&status);
-        index = deadPid % MAXPROC;
-        memset(&procTable[index], 0, sizeof(struct PCB));
-    }
-
+    
     if (deadPid == -2)
     {
-        USLOSS_Console("ERROR: init has no more children, terminating simulation\n");
+        USLOSS_Console("ERROR: init has no more children, terminating "
+            "simulation\n");
         USLOSS_Halt(1);
         return 0;
     }
     else if (deadPid == -3)
-    {
         USLOSS_Console("ERROR: status pointer is null");
-    }
-
+    
     restoreInterrupts(oldPsr);
 
     return 0;
 }
 
-void sporkTrampoline()
-{
-    restoreInterrupts(gOldPsr);
-    currProc->retVal = currProc->funcPtr(currProc->arg);
-}
-
-int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
+int spork(char *name, int (*func)(void *), void *arg, int stacksize, 
+    int priority)
 {
     enforceKernelMode(1);
 
     // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
-    if (filledSlots == 50) {
-        return -1;
-    }
 
+    // check if procTable is full
+    if (filledSlots == 50)
+        return -1;
+    
     getNextPid();
     int pid = nextPid;
     int slot = pid % MAXPROC;
-    if (procTable[slot].pid != 0 || strlen(name) > MAXNAME || priority < 1 || priority > 5)
+
+    if (procTable[slot].pid != 0 || strlen(name) > MAXNAME || priority < 1 
+        || priority > 5)
         return -1;
     if (stacksize < USLOSS_MIN_STACK)
         return -2;
@@ -146,15 +142,15 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     newProc->priority = priority;
     newProc->stack = malloc(stacksize);
     newProc->isDead = false;
-
     newProc->funcPtr = func;
     newProc->arg = arg;
 
     addChild(currProc, newProc);
 
-    USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline);
+    USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, 
+        NULL, &sporkTrampoline);
+    
     filledSlots++;
-
     restoreInterrupts(oldPsr);
 
     return pid;
@@ -163,20 +159,18 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
 void TEMP_switchTo(int pid)
 {
     unsigned int oldPsr = disableInterrupts();
-    gOldPsr = oldPsr;
+    gOldPsr = oldPsr; // keep track of old psr in global variable
 
     struct PCB *oldProc = currProc;
     struct PCB *switchTo = &procTable[pid % MAXPROC];
     currProc = switchTo;
 
     if (currProc->pid == 1)
-    {
         USLOSS_ContextSwitch(NULL, &switchTo->context);
-    }
+    
     else
-    {
         USLOSS_ContextSwitch(&oldProc->context, &switchTo->context);
-    }
+    
     restoreInterrupts(oldPsr);
 }
 
@@ -185,16 +179,12 @@ int join(int *status)
     unsigned int oldPsr = disableInterrupts();
 
     if (status == NULL)
-    {
         return -3;
-    }
-
+    
     // iterate through children, looking for a dead one
     struct PCB *next = currProc->newestChild;
     if (next == NULL)
-    {
         return -2;
-    }
 
     int index, pid;
     while (next != NULL)
@@ -205,37 +195,38 @@ int join(int *status)
             pid = next->pid;
             index = pid % MAXPROC;
             // next is an only child
-            if ((next == currProc->newestChild) && (next->nextSibling == NULL)) {
+            if ((next == currProc->newestChild) && (next->nextSibling == NULL))
                 currProc->newestChild = NULL;
-            }
+            
             // next has next siblings
-            else if (next->nextSibling != NULL) {
+            else if (next->nextSibling != NULL) 
+            {
                 // next is newestChild
-                if (next == currProc->newestChild) {
+                if (next == currProc->newestChild) 
+                {
                     currProc->newestChild = next->nextSibling;
                     (next->nextSibling)->prevSibling = NULL;
                 }
                 // next is a middle child
-                else {
+                else 
+                {
                     (next->prevSibling)->nextSibling = next->nextSibling;
                     (next->nextSibling)->prevSibling = next->prevSibling;
                 }
             }
             // next does not have next siblings
-            else {
+            else
                 (next->prevSibling)->nextSibling = NULL;
-            }
-
+            
             free(next->stack);
             memset(&procTable[index], 0, sizeof(struct PCB));
             filledSlots--;
             return pid;
         }
         else
-        {
             next = next->nextSibling;
-        }
     }
+
     restoreInterrupts(oldPsr);
     return 0; 
 }
@@ -254,8 +245,7 @@ void quit_phase_1a(int status, int switchToPid)
 
     TEMP_switchTo(currProc->parent->pid);
 
-    while (true)
-        ;
+    while (true);
 }
 
 void dumpProcesses(void)
@@ -268,55 +258,50 @@ void dumpProcesses(void)
     int pid, ppid, priority, status;
     char name[MAXNAME];
 
-    for (int i = 0; i < MAXPROC; i++) {
+    for (int i = 0; i < MAXPROC; i++) 
+    {
         struct PCB *proc = &procTable[i];
         pid = proc->pid;
-        if (pid != 0) {
+        if (pid != 0) 
+        {
             status = proc->status;
-            if (proc->pid == currProc->pid) {
+            if (proc->pid == currProc->pid)
                 snprintf(state, sizeof(state), "Running");
-            } else if (status == 0) {
+            else if (status == 0)
                 snprintf(state, sizeof(state), "Runnable");
-            } else {
+            else
                 snprintf(state, sizeof(state), "Terminated(%d)", status);
-            }
-            if (pid == 1) {
+            
+            if (pid == 1)
                 ppid = 0;
-            } else {
+            else
                 ppid = (proc->parent)->pid;
-            }
+            
             strcpy(name, proc->name);
             priority = proc->priority;
-            printf("%4d  %4d  %-17s %-9d %s\n", pid, ppid, name, priority, state);
+            printf("%4d  %4d  %-17s %-9d %s\n", pid, ppid, name, 
+                priority, state);
         }
     }
 
     restoreInterrupts(oldPsr);
 }
 
-/* --- Helper functions, not defined in spec --- */
+/* ------------ Helper functions, not defined in spec ------------ */
 /*
- * Checks the nextPid to see if it maps to a position in the procTable
- * that is alredy filled. It keeps checking for a blank spot in the procTable and
- * updates the global variable.
+ * Checks the nextPid to see if it maps to a position in the 
+ * procTable that is alredy filled. It keeps checking for a blank 
+ * spot in the procTable and updates the global variable.
  */
 int getpid()
 {
     return currProc->pid;
 }
 
-void removeChild()
+void sporkTrampoline()
 {
-    if (currProc->parent->newestChild == currProc)
-    {
-        currProc->parent->newestChild = currProc->nextSibling;
-        currProc->nextSibling->prevSibling = NULL;
-    }
-    else
-    {
-        currProc->prevSibling->nextSibling = currProc->nextSibling;
-        currProc->nextSibling->prevSibling = currProc->prevSibling;
-    }
+    restoreInterrupts(gOldPsr);
+    currProc->retVal = currProc->funcPtr(currProc->arg);
 }
 
 // add child process to parent
@@ -341,22 +326,20 @@ void getNextPid(void)
 }
 
 /*
- * Checks to make sure that kernel code does not get called while in user mode. Takes an integer parameter to identify which kernel-mode function the process tried to call.
- 1 = spork
- 2 = quit_phase_1a
+ * Checks to make sure that kernel code does not get called while in 
+ * user mode. Takes an integer parameter to identify which 
+ * kernel-mode function the process tried to call.
+ * 1 = spork
+ * 2 = quit_phase_1a
  */
 void enforceKernelMode(int i)
 {
     if (!(USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()))
     {
         if (i == 1)
-        {
             USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
-        } else if (i == 2)
-        {
+        else if (i == 2)
             USLOSS_Console("ERROR: Someone attempted to call quit_phase_1a while in user mode!\n");
-        }
-        
         
         USLOSS_Halt(1);
     }
