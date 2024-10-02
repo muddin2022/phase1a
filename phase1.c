@@ -351,6 +351,7 @@ void enforceKernelMode(int i)
             USLOSS_Console("ERROR: Someone attempted to call quit_phase_1a while in user mode!\n");
         }
         
+        
         USLOSS_Halt(1);
     }
 }
