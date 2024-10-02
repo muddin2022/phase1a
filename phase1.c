@@ -122,7 +122,7 @@ void sporkTrampoline()
 
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
-    enforceKernelMode();
+    enforceKernelMode(1);
 
     // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
@@ -241,6 +241,8 @@ void quit_phase_1a(int status, int switchToPid)
         USLOSS_Console("ERROR: Process pid %d called quit() while it still had children.\n", currProc->pid);
         USLOSS_Halt(1);
     }
+    enforceKernelMode(2);
+    
     currProc->status = status;
     currProc->isDead = true;
 
@@ -337,11 +339,18 @@ void getNextPid(void)
  1 = spork
  2 = quit_phase_1a
  */
-void enforceKernelMode()
+void enforceKernelMode(int i)
 {
     if (!(USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()))
     {
-        USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
+        if (i == 1)
+        {
+            USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
+        } else if (i == 2)
+        {
+            USLOSS_Console("ERROR: Someone attempted to call quit_phase_1a while in user mode!\n");
+        }
+        
         USLOSS_Halt(1);
     }
 }
