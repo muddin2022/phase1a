@@ -31,6 +31,7 @@ struct PCB procTable[MAXPROC];
 char initStack[USLOSS_MIN_STACK];
 int nextPid = 1;
 int lastPid = -1;
+int filledSlots = 0;
 unsigned int gOldPsr;
 
 /* --- Function prototypes --- */
@@ -42,7 +43,6 @@ int testcaseMainWrapper(void *args);
 void sporkTrampoline(void);
 void enforceKernelMode();
 void addChild(struct PCB *parent, struct PCB *child);
-// void removeChild();
 
 /* --- Functions from spec --- */
 void phase1_init(void)
@@ -66,6 +66,7 @@ void phase1_init(void)
     initProc->arg = NULL;
 
     USLOSS_ContextInit(&(procTable[index].context), initProc->stack, USLOSS_MIN_STACK, NULL, &sporkTrampoline);
+    filledSlots++;
 
     currProc = initProc;
     restoreInterrupts(oldPsr);
@@ -123,10 +124,13 @@ void sporkTrampoline()
 
 int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priority)
 {
-    enforceKernelMode();
+    enforceKernelMode(1);
 
     // disable interrupts for new process creation
     unsigned int oldPsr = disableInterrupts();
+    if (filledSlots == 50) {
+        return -1;
+    }
 
     getNextPid();
     
@@ -151,6 +155,7 @@ int spork(char *name, int (*func)(void *), void *arg, int stacksize, int priorit
     addChild(currProc, newProc);
 
     USLOSS_ContextInit(&newProc->context, newProc->stack, stacksize, NULL, &sporkTrampoline);
+    filledSlots++;
 
     restoreInterrupts(oldPsr);
 
@@ -230,7 +235,7 @@ int join(int *status)
 
             free(next->stack);
             memset(&procTable[index], 0, sizeof(struct PCB));
-
+            filledSlots--;
             return pid;
         }
         else
@@ -249,6 +254,8 @@ void quit_phase_1a(int status, int switchToPid)
         USLOSS_Console("ERROR: Process pid %d called quit() while it still had children.\n", currProc->pid);
         USLOSS_Halt(1);
     }
+    enforceKernelMode(2);
+    
     currProc->status = status;
     currProc->isDead = true;
 
@@ -351,11 +358,24 @@ void getNextPid(void)
     lastPid = nextPid;
 }
 
-void enforceKernelMode()
+/*
+ * Checks to make sure that kernel code does not get called while in user mode. Takes an integer parameter to identify which kernel-mode function the process tried to call.
+ 1 = spork
+ 2 = quit_phase_1a
+ */
+void enforceKernelMode(int i)
 {
     if (!(USLOSS_PSR_CURRENT_MODE & USLOSS_PsrGet()))
     {
-        USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
+        if (i == 1)
+        {
+            USLOSS_Console("ERROR: Someone attempted to call spork while in user mode!\n");
+        } else if (i == 2)
+        {
+            USLOSS_Console("ERROR: Someone attempted to call quit_phase_1a while in user mode!\n");
+        }
+        
+        
         USLOSS_Halt(1);
     }
 }
